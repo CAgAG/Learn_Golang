@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>index</title>
+</head>
+<body>
+
+<h1>
+    hello world
+</h1>
+
+<h2>
+    <p>后端发来的数据 </p>
+    <p>{{.msg}}</p>
+    <p>{{.cur_time}}</p>
+</h2>
+
+<form action="/user/add" method="post">
+    <p>
+        user name: <input type="text" name="username">
+    </p>
+    <p>
+        pass word: <input type="text" name="password">
+    </p>
+
+    <button type="submit"> 提交 </button>
+</form>
+
+</body>
+</html>
