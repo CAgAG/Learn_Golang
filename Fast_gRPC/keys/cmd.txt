@@ -1,0 +1,9 @@
+openssl genrsa -out server.key 2048
+openssl req -new -x509 -key server.key -out server.crt -days 36500
+openssl req -new -key server.key -out server.csr
+
+// 私钥
+openssl genpkey -algorithm RSA -out test.key
+openssl req -new -nodes -key test.key -out test.csr -days 3650 -subj "/C=cn/OU=myorg/O=mycomp/CN=myname" -config ./openssl.cfg -extensions v3_req
+// 证书
+openssl x509 -req -days 365 -in test.csr -out test.pem -CA server.crt -extfile ./openssl.cfg -extensions v3_req

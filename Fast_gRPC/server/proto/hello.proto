@@ -1,0 +1,21 @@
+// protoc --go_out=. --go-grpc_out=. hello.proto
+// 语法
+syntax = "proto3";
+
+// 生成位置
+option go_package = ".;service";
+
+// 定义服务
+service SayHello {
+  rpc SayHello(HelloRequest) returns (HelloResponse) {}  // rpc函数
+}
+
+message HelloRequest {
+  string requestName = 1;  // 这个不是赋值，而是生成代码的位置
+  int64 age = 2;
+  repeated string names = 3;  // 切片类型
+}
+
+message HelloResponse {
+  string responseName = 1;
+}
