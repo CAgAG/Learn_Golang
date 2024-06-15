@@ -59,7 +59,10 @@ func (this *User) Online() {
 
 // 下线
 func (this *User) Offline() {
+	fmt.Println(fmt.Sprintf("用户: %s, 已下线", this.Name))
+	this.server.map_lock.Lock()
 	delete(this.server.OnlineMap, this.Name)
+	this.server.map_lock.Unlock()
 	this.server.BroadCast(this, "Offline")
 
 	defer this.Conn.Close()
