@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net"
@@ -67,7 +68,17 @@ func (this *Server) Handler(conn net.Conn) {
 	// 用户上线
 	user.Online()
 	// 监听用户是否活跃
-	is_live := make(chan bool)
+	time_out_ctx, cancel_func := context.WithCancel(context.Background()) // 超时下线
+	exit_ctx, cancel_func2 := context.WithCancel(context.Background())    // 断开连接
+	// 初始定时时间
+	user_out_time := 60 * time.Second
+	user_timer := time.NewTimer(user_out_time)
+
+	// 不活跃计时
+	go func() {
+		<-user_timer.C
+		cancel_func()
+	}()
 
 	// 接收用户发送的消息
 	go func() {
@@ -76,11 +87,12 @@ func (this *Server) Handler(conn net.Conn) {
 			n, err := conn.Read(buf)
 			if n == 0 {
 				// 用户下线
-				user.Offline()
+				cancel_func2()
 				return
 			}
 			if err != nil && err != io.EOF {
 				fmt.Println("Conn error:", err)
+				cancel_func2()
 				return
 			}
 			// 提取用户信息, 同时去除最后一位 note: linux:\n windows: \r\n
@@ -89,19 +101,23 @@ func (this *Server) Handler(conn net.Conn) {
 			user.DoMessage(msg)
 
 			// 更新活跃信息
-			is_live <- true
+			user_timer.Reset(user_out_time)
 		}
 	}()
 
 	// 阻塞
 	for true {
 		select {
-		// 用户是否活跃
-		case <-is_live:
-			// 活跃就不操作
+		// 用户断开连接
+		case <-exit_ctx.Done():
+			fmt.Println("用户关闭连接")
+			user.Offline()
+			return
 		// 60秒不发言就踢出
-		case <-time.After(time.Second * 60):
+		case <-time_out_ctx.Done():
+			fmt.Println("用户超时下线")
 			user.SelfMessage("You have been removed from the group chat!")
+			user.Offline()
 			return
 		}
 	}
