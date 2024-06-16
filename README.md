@@ -43,6 +43,7 @@
     - 希尔排序
     - 归并排序
 - FastGo: Go语言快速入门
+- FastGo2: Go语言进阶入门
 - FastGo_Project: 一个简单的即时聊天项目
 - Fast_Gin: 快速入门 Gin
 - Fast_gRPC: 快速入门gRPC
